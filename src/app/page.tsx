@@ -1,6 +1,9 @@
-import JapanMap from "./components/japan-map";
+'use client';
 
-export default async function Page() {
+import JapanMap from "./components/japan-map";
+import { AnalyticsDashboard } from "./components/analytics-dashboard/AnalyticsDashboard";
+
+export default function Page() {
   const list = [
     { name: "hokkaido", name_ja: "北海道", count: 15 },
     { name: "aomori", name_ja: "青森県", count: 0 },
@@ -50,5 +53,12 @@ export default async function Page() {
     { name: "kagoshima", name_ja: "鹿児島県", count: 10 },
     { name: "okinawa", name_ja: "沖縄県", count: 20 }
   ];
-  return <JapanMap list={list} />;
+  return (
+    <div className="container mx-auto p-4">
+      <AnalyticsDashboard />
+      <div className="mt-6">
+        <JapanMap list={list} />
+      </div>
+    </div>
+  );
 }
