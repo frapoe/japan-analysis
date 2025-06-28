@@ -23,7 +23,7 @@ export const AnalyticsDashboard: React.FC = () => {
     pageviewsChange: 12.5,
     visitors: 1241,
     visitorsChange: 8.2,
-    avgDuration: '2分45秒',
+    avgDuration: '2m 45s',
     avgDurationChange: -3.2,
   };
 

@@ -185,14 +185,14 @@ const JapanMap = ({ list }: { list: Prefecture[] }) => {
         flexDirection: "column",
         height: "100%",
         backgroundColor: "#ffffff",
-        padding: "1rem",
+        padding: "0.5rem",
       }}
     >
       <div
         style={{
           flex: 1,
           minHeight: "500px",
-          marginBottom: "0rem",
+          marginBottom: "0.5rem",
         }}
       >
         <svg

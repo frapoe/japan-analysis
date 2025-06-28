@@ -36,7 +36,6 @@ const PrefectureStats: React.FC<PrefectureStatsProps> = ({
 
   return (
     <div className="prefecture-stats">
-      <h3>都道府県別訪問者数</h3>
       <div className="stats-list">
         {sortedList.map((pref) => {
           const percentage =
@@ -67,50 +66,36 @@ const PrefectureStats: React.FC<PrefectureStatsProps> = ({
       </div>
       <style jsx>{`
         .prefecture-stats {
-          margin-top: 2rem;
-          color: #000000; /* 文字色を黒に変更 */
-          background-color: #ffffff; /* 背景色を白に設定 */
+          margin-top: 1rem;
+          color: #000000;
+          background-color: #ffffff;
           width: 100%;
           max-width: 800px;
           margin-left: auto;
           margin-right: auto;
-          padding: 1rem;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .prefecture-stats h3 {
-          margin: 0 0 1rem 0;
-          font-size: 1.25rem;
-          font-weight: 600;
-          padding-bottom: 0.5rem;
-          border-bottom: 1px solid #333;
+          padding: 0.5rem 1rem;
         }
         .stats-list {
           display: grid;
-          gap: 0.5rem;
+          gap: 0.05rem;
         }
         .stat-item {
           display: grid;
           grid-template-columns: 100px 1fr 80px 60px;
           align-items: center;
-          gap: 1rem;
+          gap: 0.25rem;
           font-size: 0.9rem;
-          padding: 0.5rem 0;
-          border-bottom: 1px solid #e5e7eb; /* 区切り線を追加 */
-        }
-        .stat-item:last-child {
-          border-bottom: none;
+          padding: 0.05rem 0;
         }
         .stat-name {
           min-width: 80px;
         }
         .stat-bar-container {
-          height: 20px;
-          background-color: #e5e7eb; /* バーの背景色を薄いグレーに */
-          border-radius: 4px;
+          height: 10px;
+          background-color: #f3f4f6;
+          border-radius: 1px;
           overflow: hidden;
           flex-grow: 1;
-          border: 1px solid #d1d5db; /* ボーダーを追加 */
         }
         .stat-bar {
           height: 100%;
