@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useEffect, useRef, memo, useState } from "react";
+import React, { useEffect, useRef, memo } from "react";
 import dynamic from "next/dynamic";
+import * as d3 from "d3";
+import { GeoPath, GeoProjection } from "d3-geo";
+import geoJson from "@/app/lib/japan.json";
+import { Geometry } from 'geojson';
 
 // Dynamically import PrefectureStats with no SSR to avoid window is not defined error
 const PrefectureStats = dynamic(() => import("./PrefectureStats"), {
   ssr: false,
 });
-import * as d3 from "d3";
-import geoJson from "@/app/lib/japan.json";
 
 export type Prefecture = {
   name: string;
@@ -18,12 +20,13 @@ export type Prefecture = {
 interface FeatureProperties {
   name: string;
   name_ja: string;
-  [key: string]: any;
+  [key: string]: string;
 }
 
 interface Feature {
+  type: "Feature";
   properties: FeatureProperties;
-  [key: string]: any;
+  geometry: Geometry;
 }
 
 const JapanMap = ({ list }: { list: Prefecture[] }) => {
@@ -51,14 +54,14 @@ const JapanMap = ({ list }: { list: Prefecture[] }) => {
     const colorHover = "#0000FF";
 
     // 地図の投影法を設定
-    const projection = d3
+    const projection: GeoProjection = d3
       .geoMercator()
       .center([138, 38])
-      .scale(1500)
+      .scale(2500)
       .translate([width / 2, height / 2]);
 
     // パスジェネレータ
-    const path = d3.geoPath().projection(projection);
+    const path: GeoPath = d3.geoPath().projection(projection);
 
     // SVG要素を選択または作成
     const svg = d3.select(svgRef.current);
@@ -92,12 +95,16 @@ const JapanMap = ({ list }: { list: Prefecture[] }) => {
       .data(geoJson.features)
       .enter()
       .append("path")
-      .attr("d", path as any)
+      .attr("d", (d: unknown) => {
+        const feature = d as Feature;
+        return path(feature);
+      })
       .attr("stroke", strokeColor) // 境界線を白に
       .attr("stroke-width", 0.5)
-      .attr("fill", (d: any) => {
+      .attr("fill", (d: unknown) => {
+        const feature = d as Feature;
         const pref = list.find(
-          (item) => item.name.toLowerCase() === d.properties.name.toLowerCase()
+          (item) => item.name.toLowerCase() === feature.properties.name.toLowerCase()
         );
         if (!pref) return "#2d2d2d"; // データのない都道府県は少し暗いグレーに
         if (pref.count === 0) return colorConfig.zeroCountColor; // 訪問者数0の場合は指定色
@@ -112,13 +119,14 @@ const JapanMap = ({ list }: { list: Prefecture[] }) => {
       })
       .attr("opacity", 0.8)
       .style("cursor", "pointer")
-      .on("mouseover", function (event: any, d: Feature) {
+      .on("mouseover", function (event: MouseEvent, d: unknown) {
+        const feature = d as Feature;
         d3.select(this).attr("fill", colorHover).attr("opacity", 1);
 
-        const prefName = d.properties.name_ja;
+        const prefName = feature.properties.name_ja;
         const pref = list.find(
-          (item) => item.name.toLowerCase() === d.properties.name.toLowerCase()
-        ) || { name: d.properties.name, count: 0 }; // 見つからない場合は0人として扱う
+          (item) => item.name.toLowerCase() === feature.properties.name.toLowerCase()
+        ) || { name: feature.properties.name, count: 0 }; // 見つからない場合は0人として扱う
 
         tooltip
           .html(
@@ -133,18 +141,19 @@ const JapanMap = ({ list }: { list: Prefecture[] }) => {
 
         tooltip.transition().duration(200).style("opacity", 0.9);
       })
-      .on("mousemove", function (event: any) {
+      .on("mousemove", function (event: MouseEvent) {
         tooltip
           .style("left", event.pageX + 10 + "px")
           .style("top", event.pageY - 28 + "px");
       })
-      .on("mouseout", function (event: any, d: any) {
+      .on("mouseout", function (event: MouseEvent, d: unknown) {
+        const feature = d as Feature;
         d3.select(this)
-          .attr("fill", (d: any) => {
+          .attr("fill", () => {
             const pref = list.find(
               (item) =>
-                item.name.toLowerCase() === d.properties.name.toLowerCase()
-            ) || { name: d.properties.name, count: 0 };
+                item.name.toLowerCase() === feature.properties.name.toLowerCase()
+            ) || { name: feature.properties.name, count: 0 };
 
             if (pref.count === 0) return colorConfig.zeroCountColor;
 
@@ -167,7 +176,7 @@ const JapanMap = ({ list }: { list: Prefecture[] }) => {
     return () => {
       tooltip.remove();
     };
-  }, [list]);
+  }, [list, colorConfig.hue, colorConfig.lightness, colorConfig.maxSaturation, colorConfig.minSaturation, colorConfig.zeroCountColor]);
 
   return (
     <div
