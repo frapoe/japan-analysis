@@ -2,20 +2,52 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
+  --foreground: #000000; /* 文字色を黒に変更 */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
 }
 
-@media (prefers-color-scheme: dark) {
+/* ツールチップのスタイル */
+.tooltip {
+  position: absolute;
+  background: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  font-size: 14px;
+  z-index: 10;
+  transition: opacity 0.2s;
+}
+
+.tooltip strong {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+/* ダークモードを無効化 */
+/* @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+  }
+  
+  .tooltip {
+    background: #2d3748;
+    color: #f7fafc;
+  }
+} */
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .tooltip {
+    font-size: 12px;
+    padding: 6px 10px;
   }
 }
 

@@ -1,0 +1,144 @@
+import React from "react";
+export type Prefecture = {
+  name: string;
+  name_ja?: string;
+  count: number;
+};
+
+interface PrefectureStatsProps {
+  list: Prefecture[];
+  colorConfig: {
+    hue: number;
+    minSaturation: number;
+    maxSaturation: number;
+    lightness: number;
+    zeroCountColor: string;
+  };
+}
+
+const PrefectureStats: React.FC<PrefectureStatsProps> = ({
+  list,
+  colorConfig,
+}) => {
+  const maxCount = Math.max(...list.map((p) => p.count), 1);
+  const sortedList = [...list].sort((a, b) => b.count - a.count);
+  const totalVisitors = list.reduce((sum, pref) => sum + pref.count, 0);
+
+  const getBarColor = (count: number) => {
+    if (count === 0) return colorConfig.zeroCountColor;
+    const percentage = (count / maxCount) * 100;
+    const saturation =
+      colorConfig.minSaturation +
+      (percentage / 100) *
+        (colorConfig.maxSaturation - colorConfig.minSaturation);
+    return `hsl(${colorConfig.hue}, ${saturation}%, ${colorConfig.lightness}%)`;
+  };
+
+  return (
+    <div className="prefecture-stats">
+      <h3>都道府県別訪問者数</h3>
+      <div className="stats-list">
+        {sortedList.map((pref) => {
+          const percentage =
+            totalVisitors > 0 ? (pref.count / totalVisitors) * 100 : 0;
+          const barWidth = (pref.count / maxCount) * 100;
+
+          return (
+            <div key={pref.name} className="stat-item">
+              <div className="stat-name">
+                {pref.name_ja || pref.name.replace(/(都|道|府|県)$/, "")}
+              </div>
+              <div className="stat-bar-container">
+                <div
+                  className="stat-bar"
+                  style={{
+                    width: `${barWidth}%`,
+                    backgroundColor: getBarColor(pref.count),
+                  }}
+                />
+              </div>
+              <div className="stat-count">{pref.count}人</div>
+              <div className="stat-percent">
+                {totalVisitors > 0 ? percentage.toFixed(1) : "0.0"}%
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <style jsx>{`
+        .prefecture-stats {
+          margin-top: 2rem;
+          color: #000000; /* 文字色を黒に変更 */
+          background-color: #ffffff; /* 背景色を白に設定 */
+          width: 100%;
+          max-width: 800px;
+          margin-left: auto;
+          margin-right: auto;
+          padding: 1rem;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .prefecture-stats h3 {
+          margin: 0 0 1rem 0;
+          font-size: 1.25rem;
+          font-weight: 600;
+          padding-bottom: 0.5rem;
+          border-bottom: 1px solid #333;
+        }
+        .stats-list {
+          display: grid;
+          gap: 0.5rem;
+        }
+        .stat-item {
+          display: grid;
+          grid-template-columns: 100px 1fr 80px 60px;
+          align-items: center;
+          gap: 1rem;
+          font-size: 0.9rem;
+          padding: 0.5rem 0;
+          border-bottom: 1px solid #e5e7eb; /* 区切り線を追加 */
+        }
+        .stat-item:last-child {
+          border-bottom: none;
+        }
+        .stat-name {
+          min-width: 80px;
+        }
+        .stat-bar-container {
+          height: 20px;
+          background-color: #e5e7eb; /* バーの背景色を薄いグレーに */
+          border-radius: 4px;
+          overflow: hidden;
+          flex-grow: 1;
+          border: 1px solid #d1d5db; /* ボーダーを追加 */
+        }
+        .stat-bar {
+          height: 100%;
+          transition: width 0.3s ease;
+        }
+        .stat-count {
+          text-align: right;
+          min-width: 60px;
+        }
+        .stat-percent {
+          text-align: right;
+          color: #666; /* パーセントの色を少し濃いグレーに */
+          min-width: 50px;
+          font-weight: 500;
+        }
+        @media (max-width: 640px) {
+          .stat-item {
+            grid-template-columns: 80px 1fr 60px 50px;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+          }
+          .stat-name {
+            min-width: 60px;
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default PrefectureStats;

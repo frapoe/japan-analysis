@@ -1,103 +1,54 @@
-import Image from "next/image";
+import JapanMap from "./components/japan-map";
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+export default async function Page() {
+  const list = [
+    { name: "hokkaido", name_ja: "北海道", count: 15 },
+    { name: "aomori", name_ja: "青森県", count: 0 },
+    { name: "iwate", name_ja: "岩手県", count: 0 },
+    { name: "miyagi", name_ja: "宮城県", count: 8 },
+    { name: "akita", name_ja: "秋田県", count: 0 },
+    { name: "yamagata", name_ja: "山形県", count: 5 },
+    { name: "fukushima", name_ja: "福島県", count: 0 },
+    { name: "ibaraki", name_ja: "茨城県", count: 12 },
+    { name: "tochigi", name_ja: "栃木県", count: 10 },
+    { name: "gunma", name_ja: "群馬県", count: 7 },
+    { name: "saitama", name_ja: "埼玉県", count: 25 },
+    { name: "chiba", name_ja: "千葉県", count: 22 },
+    { name: "tokyo", name_ja: "東京都", count: 100 },
+    { name: "kanagawa", name_ja: "神奈川県", count: 35 },
+    { name: "niigata", name_ja: "新潟県", count: 8 },
+    { name: "toyama", name_ja: "富山県", count: 6 },
+    { name: "ishikawa", name_ja: "石川県", count: 8 },
+    { name: "fukui", name_ja: "福井県", count: 0 },
+    { name: "yamanashi", name_ja: "山梨県", count: 4 },
+    { name: "nagano", name_ja: "長野県", count: 8 },
+    { name: "gifu", name_ja: "岐阜県", count: 6 },
+    { name: "shizuoka", name_ja: "静岡県", count: 15 },
+    { name: "aichi", name_ja: "愛知県", count: 45 },
+    { name: "mie", name_ja: "三重県", count: 10 },
+    { name: "shiga", name_ja: "滋賀県", count: 8 },
+    { name: "kyoto", name_ja: "京都府", count: 28 },
+    { name: "osaka", name_ja: "大阪府", count: 65 },
+    { name: "hyogo", name_ja: "兵庫県", count: 32 },
+    { name: "nara", name_ja: "奈良県", count: 12 },
+    { name: "wakayama", name_ja: "和歌山県", count: 6 },
+    { name: "tottori", name_ja: "鳥取県", count: 0 },
+    { name: "shimane", name_ja: "島根県", count: 0 },
+    { name: "okayama", name_ja: "岡山県", count: 15 },
+    { name: "hiroshima", name_ja: "広島県", count: 25 },
+    { name: "yamaguchi", name_ja: "山口県", count: 8 },
+    { name: "tokushima", name_ja: "徳島県", count: 5 },
+    { name: "kagawa", name_ja: "香川県", count: 6 },
+    { name: "ehime", name_ja: "愛媛県", count: 10 },
+    { name: "kochi", name_ja: "高知県", count: 0 },
+    { name: "fukuoka", name_ja: "福岡県", count: 35 },
+    { name: "saga", name_ja: "佐賀県", count: 4 },
+    { name: "nagasaki", name_ja: "長崎県", count: 8 },
+    { name: "kumamoto", name_ja: "熊本県", count: 12 },
+    { name: "oita", name_ja: "大分県", count: 6 },
+    { name: "miyazaki", name_ja: "宮崎県", count: 4 },
+    { name: "kagoshima", name_ja: "鹿児島県", count: 10 },
+    { name: "okinawa", name_ja: "沖縄県", count: 20 }
+  ];
+  return <JapanMap list={list} />;
 }
