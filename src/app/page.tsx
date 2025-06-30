@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import JapanMap from "./components/japan-map";
 import { AnalyticsDashboard } from "./components/analytics-dashboard/AnalyticsDashboard";
@@ -52,7 +52,7 @@ export default function Page() {
     { name: "oita", name_ja: "大分県", count: 6 },
     { name: "miyazaki", name_ja: "宮崎県", count: 4 },
     { name: "kagoshima", name_ja: "鹿児島県", count: 10 },
-    { name: "okinawa", name_ja: "沖縄県", count: 20 }
+    { name: "okinawa", name_ja: "沖縄県", count: 20 },
   ];
   // 仮のOS統計データ
   const osStats = [
@@ -71,13 +71,15 @@ export default function Page() {
   ];
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 space-y-6">
       <AnalyticsDashboard />
+
       <div className="mt-6">
         <JapanMap list={list} />
       </div>
-      <div className="mt-6 bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-lg font-medium mb-6">アクセス解析</h2>
+
+      <div>
+        <h2 className="text-lg font-medium mb-6"></h2>
         <DeviceAndOsStats osStats={osStats} deviceStats={deviceStats} />
       </div>
     </div>

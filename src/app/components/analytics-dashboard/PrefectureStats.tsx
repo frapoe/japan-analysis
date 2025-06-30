@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "../styles/stats.css";
 export type Prefecture = {
   name: string;
   name_ja?: string;
@@ -37,7 +38,7 @@ const PrefectureStats: React.FC<PrefectureStatsProps> = ({
   };
 
   return (
-    <div className="prefecture-stats">
+    <div className="stats-container">
       <div className="stats-list">
         {displayedList.map((pref) => {
           const percentage =
@@ -76,64 +77,8 @@ const PrefectureStats: React.FC<PrefectureStatsProps> = ({
           </button>
         </div>
       )}
-      <style jsx>{`
-        .prefecture-stats {
-          margin-top: 1rem;
-          color: #000000;
-          background-color: #ffffff;
-          width: 100%;
-          max-width: 800px;
-          margin-left: auto;
-          margin-right: auto;
-          padding: 0.5rem 1rem;
-        }
-        .stats-list {
-          display: grid;
-          gap: 0.05rem;
-        }
-        .stat-item {
-          display: grid;
-          grid-template-columns: 100px 1fr 80px 60px;
-          align-items: center;
-          gap: 0.25rem;
-          font-size: 0.9rem;
-          padding: 0.05rem 0;
-        }
-        .stat-name {
-          min-width: 80px;
-        }
-        .stat-bar-container {
-          height: 10px;
-          background-color: #f3f4f6;
-          border-radius: 1px;
-          overflow: hidden;
-          flex-grow: 1;
-        }
-        .stat-bar {
-          height: 100%;
-          transition: width 0.3s ease;
-        }
-        .stat-count {
-          text-align: right;
-          min-width: 60px;
-        }
-        .stat-percent {
-          text-align: right;
-          color: #666; /* パーセントの色を少し濃いグレーに */
-          min-width: 50px;
-          font-weight: 500;
-        }
-        @media (max-width: 640px) {
-          .stat-item {
-            grid-template-columns: 80px 1fr 60px 50px;
-            gap: 0.5rem;
-            font-size: 0.8rem;
-          }
-          .stat-name {
-            min-width: 60px;
-          }
-        }
-      `}</style>
+
+
     </div>
   );
 };

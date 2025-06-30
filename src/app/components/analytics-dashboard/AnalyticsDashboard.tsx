@@ -33,7 +33,7 @@ export const AnalyticsDashboard: React.FC = () => {
   }));
 
   return (
-    <div className="mb-6 space-y-6">
+    <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="表示数"
@@ -55,12 +55,10 @@ export const AnalyticsDashboard: React.FC = () => {
         />
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div>
         <h2 className="text-lg font-medium mb-4">時間別アクセス数</h2>
         <BarChart data={hourlyData} />
       </div>
-
-
     </div>
   );
 };

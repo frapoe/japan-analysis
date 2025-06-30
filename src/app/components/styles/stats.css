@@ -1,0 +1,82 @@
+.stats-container {
+  margin-top: 1rem;
+  color: #000000;
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0.5rem 1rem;
+}
+
+.stats-list {
+  display: grid;
+  gap: 0.05rem;
+}
+
+.stat-item {
+  display: grid;
+  grid-template-columns: 100px 1fr 80px 60px;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  padding: 0.05rem 0;
+}
+
+.stat-name {
+  min-width: 80px;
+}
+
+.stat-bar-container {
+  height: 10px;
+  background-color: #f3f4f6;
+  border-radius: 1px;
+  overflow: hidden;
+  flex-grow: 1;
+}
+
+.stat-bar {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.stat-count {
+  text-align: right;
+  min-width: 60px;
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-percent {
+  text-align: right;
+  color: #666;
+  min-width: 50px;
+  font-weight: 500;
+}
+
+/* デバイスとOSのスタイル */
+.device-os-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.device-os-section h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 640px) {
+  .stat-item {
+    grid-template-columns: 80px 1fr 60px 50px;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .stat-name {
+    min-width: 60px;
+  }
+}
