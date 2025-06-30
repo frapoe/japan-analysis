@@ -1,11 +1,11 @@
-import React from 'react';
-import { MetricCard } from './MetricCard';
-import { BarChart } from './BarChart';
+import React from "react";
+import { MetricCard } from "./MetricCard";
+import { BarChart } from "./BarChart";
 
 // 仮のデータを生成する関数
 const generateHourlyData = () => {
   const hours = Array.from({ length: 24 }, (_, i) => i); // 0-23時
-  return hours.map(hour => {
+  return hours.map((hour) => {
     const visits = Math.floor(Math.random() * 100) + 10; // 10-110のランダムな値
     const additionalViews = Math.floor(Math.random() * 100) + 5; // 5-105の追加表示数
     return {
@@ -23,18 +23,18 @@ export const AnalyticsDashboard: React.FC = () => {
     pageviewsChange: 12.5,
     visitors: 1241,
     visitorsChange: 8.2,
-    avgDuration: '2m 45s',
+    avgDuration: "2m 45s",
     avgDurationChange: -3.2,
   };
 
-  const hourlyData = generateHourlyData().map(item => ({
+  const hourlyData = generateHourlyData().map((item) => ({
     ...item,
-    additionalViews: Math.max(0, item.pageviews - item.visits) // 追加表示数（表示数 - 訪問者数）
+    additionalViews: Math.max(0, item.pageviews - item.visits), // 追加表示数（表示数 - 訪問者数）
   }));
 
   return (
-    <div className="mb-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+    <div className="mb-6 space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
           title="表示数"
           value={metrics.pageviews.toLocaleString()}
@@ -55,7 +55,12 @@ export const AnalyticsDashboard: React.FC = () => {
         />
       </div>
 
-      <BarChart data={hourlyData} />
+      <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <h2 className="text-lg font-medium mb-4">時間別アクセス数</h2>
+        <BarChart data={hourlyData} />
+      </div>
+
+
     </div>
   );
 };

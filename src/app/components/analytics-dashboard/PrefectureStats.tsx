@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 export type Prefecture = {
   name: string;
   name_ja?: string;
@@ -21,8 +21,10 @@ const PrefectureStats: React.FC<PrefectureStatsProps> = ({
   colorConfig,
 }) => {
   const maxCount = Math.max(...list.map((p) => p.count), 1);
+  const [showAll, setShowAll] = useState(false);
   const sortedList = [...list].sort((a, b) => b.count - a.count);
   const totalVisitors = list.reduce((sum, pref) => sum + pref.count, 0);
+  const displayedList = showAll ? sortedList : sortedList.slice(0, 10);
 
   const getBarColor = (count: number) => {
     if (count === 0) return colorConfig.zeroCountColor;
@@ -37,7 +39,7 @@ const PrefectureStats: React.FC<PrefectureStatsProps> = ({
   return (
     <div className="prefecture-stats">
       <div className="stats-list">
-        {sortedList.map((pref) => {
+        {displayedList.map((pref) => {
           const percentage =
             totalVisitors > 0 ? (pref.count / totalVisitors) * 100 : 0;
           const barWidth = (pref.count / maxCount) * 100;
@@ -64,6 +66,16 @@ const PrefectureStats: React.FC<PrefectureStatsProps> = ({
           );
         })}
       </div>
+      {sortedList.length > 10 && (
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+          >
+            {showAll ? '閉じる' : `さらに${sortedList.length - 10}件を表示`}
+          </button>
+        </div>
+      )}
       <style jsx>{`
         .prefecture-stats {
           margin-top: 1rem;

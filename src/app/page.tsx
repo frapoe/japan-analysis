@@ -2,6 +2,7 @@
 
 import JapanMap from "./components/japan-map";
 import { AnalyticsDashboard } from "./components/analytics-dashboard/AnalyticsDashboard";
+import { DeviceAndOsStats } from "./components/analytics-dashboard/DeviceAndOsStats";
 
 export default function Page() {
   const list = [
@@ -53,11 +54,31 @@ export default function Page() {
     { name: "kagoshima", name_ja: "鹿児島県", count: 10 },
     { name: "okinawa", name_ja: "沖縄県", count: 20 }
   ];
+  // 仮のOS統計データ
+  const osStats = [
+    { name: "Windows", percentage: 65.2 },
+    { name: "macOS", percentage: 22.8 },
+    { name: "iOS", percentage: 8.5 },
+    { name: "Android", percentage: 3.2 },
+    { name: "その他", percentage: 0.3 },
+  ];
+
+  // 仮のデバイス統計データ
+  const deviceStats = [
+    { name: "デスクトップ", percentage: 62.4 },
+    { name: "スマートフォン", percentage: 32.1 },
+    { name: "タブレット", percentage: 5.5 },
+  ];
+
   return (
     <div className="container mx-auto p-4">
       <AnalyticsDashboard />
       <div className="mt-6">
         <JapanMap list={list} />
+      </div>
+      <div className="mt-6 bg-white rounded-lg border border-gray-200 p-6">
+        <h2 className="text-lg font-medium mb-6">アクセス解析</h2>
+        <DeviceAndOsStats osStats={osStats} deviceStats={deviceStats} />
       </div>
     </div>
   );
