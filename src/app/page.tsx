@@ -57,17 +57,18 @@ export default function Page() {
   // 仮のOS統計データ
   const osStats = [
     { name: "Windows", percentage: 65.2 },
-    { name: "macOS", percentage: 22.8 },
+    { name: "MacOS", percentage: 22.8 },
     { name: "iOS", percentage: 8.5 },
     { name: "Android", percentage: 3.2 },
-    { name: "その他", percentage: 0.3 },
+    { name: "Others", percentage: 0.3 },
   ];
 
   // 仮のデバイス統計データ
   const deviceStats = [
-    { name: "デスクトップ", percentage: 62.4 },
-    { name: "スマートフォン", percentage: 32.1 },
-    { name: "タブレット", percentage: 5.5 },
+    { name: "PC", percentage: 62.4 },
+    { name: "Mobile", percentage: 32.1 },
+    { name: "Tablet", percentage: 5.5 },
+    { name: "Others", percentage: 0.3 },
   ];
 
   return (
