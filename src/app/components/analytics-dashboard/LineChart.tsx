@@ -18,19 +18,41 @@ const COLORS = {
 
 interface LineChartProps {
   data: Array<{
-    name: string;
-    visits: number;
-    pageviews: number;
+    [key: string]: string | number;
+    date: string;
   }>;
+  urlCount: number;
+  selectedUrls: string[];
+  hideLegend?: boolean;
+  className?: string;
 }
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
+    const colors = [
+      '#3b82f6', // blue-500
+      '#ef4444', // red-500
+      '#10b981', // green-500
+      '#f59e0b', // yellow-500
+      '#8b5cf6', // purple-500
+      '#ec4899', // pink-500
+      '#14b8a6', // teal-500
+    ];
+
     return (
       <div className="bg-white p-3 border border-gray-200 rounded shadow-sm text-sm">
-        <p className="font-medium">{label}</p>
-        <p style={{ color: COLORS.primary }}>訪問者数: {payload[0].value}</p>
-        <p style={{ color: COLORS.secondary }}>表示数: {payload[1].value}</p>
+        <p className="font-medium mb-2">{label}</p>
+        <div className="space-y-1">
+          {payload.map((entry: any, index: number) => (
+            <div key={`tooltip-${index}`} className="flex items-center">
+              <div 
+                className="w-2 h-2 rounded-full mr-2"
+                style={{ backgroundColor: colors[index % colors.length] }}
+              ></div>
+              <span>{entry.name}: {entry.value.toLocaleString()}</span>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -40,26 +62,34 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 // 期間の型定義
 type TimeRange = '7d' | '30d' | '90d';
 
-export const LineChart: React.FC<LineChartProps> = ({ data }) => {
+// 色の配列を定義
+const LINE_COLORS = [
+  '#3b82f6', // blue-500
+  '#ef4444', // red-500
+  '#10b981', // green-500
+  '#f59e0b', // yellow-500
+  '#8b5cf6', // purple-500
+  '#ec4899', // pink-500
+  '#14b8a6', // teal-500
+];
+
+export const LineChart: React.FC<LineChartProps> = ({ 
+  data, 
+  urlCount = 2, 
+  selectedUrls = [], 
+  hideLegend = false,
+  className = ''
+}) => {
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
-  
-  // 現在時刻を取得
-  const now = new Date();
   
   // 期間に応じたデータをフィルタリング
   const filteredData = useMemo(() => {
     const daysToShow = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
-    const startDate = new Date(now);
-    startDate.setDate(startDate.getDate() - daysToShow + 1);
-    
-    return data.filter(item => {
-      const itemDate = new Date(item.name);
-      return itemDate >= startDate && itemDate <= now;
-    });
-  }, [data, timeRange, now]);
+    return data.slice(-daysToShow);
+  }, [data, timeRange]);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
+    <div className={`bg-white rounded-lg p-6 ${className}`}>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-medium">アクセス数</h2>
         <div className="flex space-x-2">
@@ -95,69 +125,85 @@ export const LineChart: React.FC<LineChartProps> = ({ data }) => {
           </button>
         </div>
       </div>
-      <div className="h-80">
+      <div className="h-96">
         <ResponsiveContainer width="100%" height="100%">
           <RechartsLineChart
             data={filteredData}
             margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
+              top: 10,
+              right: 20,
+              left: 10,
+              bottom: 10,
             }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-            <XAxis 
-              dataKey="name"
-              tick={{ fill: "#4b5563" }}
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+            <XAxis
+              dataKey="date"
+              tick={{ fill: "#4b5563", fontSize: 12 }}
               axisLine={{ stroke: "#e5e7eb" }}
+              tickFormatter={(value) => {
+                const date = new Date(value);
+                return `${(date.getMonth() + 1)}/${date.getDate()}`;
+              }}
             />
             <YAxis
-              tick={{ fill: "#4b5563" }}
+              tick={{ fill: "#4b5563", fontSize: 12 }}
               axisLine={{ stroke: "#e5e7eb" }}
+              tickFormatter={(value) => {
+                if (value >= 1000) return `${value / 1000}k`;
+                return value;
+              }}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="visits"
-              name="訪問者数"
-              stroke={COLORS.primary}
-              strokeWidth={2}
-              dot={{
-                fill: '#fff',
-                stroke: COLORS.primary,
-                strokeWidth: 2,
-                r: 4,
-                strokeDasharray: '',
-              }}
-              activeDot={{
-                r: 6,
-                stroke: COLORS.primary,
-                strokeWidth: 2,
-                fill: '#fff',
-              }}
-            />
-            <Line
-              type="monotone"
-              dataKey="pageviews"
-              name="表示数"
-              stroke={COLORS.secondary}
-              strokeWidth={2}
-              dot={{
-                fill: '#fff',
-                stroke: COLORS.secondary,
-                strokeWidth: 2,
-                r: 4,
-                strokeDasharray: '',
-              }}
-              activeDot={{
-                r: 6,
-                stroke: COLORS.secondary,
-                strokeWidth: 2,
-                fill: '#fff',
-              }}
-            />
+            {!hideLegend && (
+              <Legend 
+                verticalAlign="top"
+                height={36}
+                formatter={(value, entry: any, index: number) => (
+                  <span className="text-sm text-gray-600">{value}</span>
+                )}
+                content={({ payload }) => (
+                  <div className="flex flex-wrap justify-center gap-4 mt-2">
+                    {payload?.map((entry: any, index: number) => (
+                      <div key={`legend-${index}`} className="flex items-center">
+                        <div 
+                          className="w-3 h-3 rounded-full mr-1"
+                          style={{ backgroundColor: entry.color }}
+                        />
+                        <span className="text-sm">{entry.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              />
+            )}
+            {Array.from({ length: urlCount }).map((_, index) => {
+              const dataKey = `url${index + 1}Pageviews`;
+              const color = LINE_COLORS[index % LINE_COLORS.length];
+              
+              return (
+                <Line
+                  key={`line-${index}`}
+                  type="monotone"
+                  dataKey={dataKey}
+                  name={selectedUrls[index] || `URL ${index + 1}`}
+                  stroke={color}
+                  strokeWidth={2}
+                  dot={{
+                    fill: '#fff',
+                    stroke: color,
+                    strokeWidth: 2,
+                    r: 4,
+                  }}
+                  activeDot={{
+                    r: 6,
+                    stroke: color,
+                    strokeWidth: 2,
+                    fill: '#fff',
+                  }}
+                />
+              );
+            })}
           </RechartsLineChart>
         </ResponsiveContainer>
       </div>
