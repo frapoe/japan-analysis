@@ -1,6 +1,22 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { MetricCard } from "./MetricCard";
 import { LineChart } from "./LineChart";
+
+// 仮のURLデータ型
+type UrlOption = {
+  id: string;
+  title: string;
+  path: string;
+};
+
+// 仮のURLデータ
+const MOCK_URL_OPTIONS: UrlOption[] = [
+  { id: '1', title: 'URL1', path: '/url1' },
+  { id: '2', title: 'URL2', path: '/url2' },
+  { id: '3', title: 'URL3', path: '/url3' },
+  { id: '4', title: 'URL4', path: '/url4' },
+  { id: '5', title: 'URL5', path: '/url5' },
+];
 
 // グラフの色定義
 const LINE_COLORS = [
@@ -29,15 +45,7 @@ const formatDate = (date: Date) => {
   return `${year}-${month}-${day}`;
 };
 
-// 新しいURLを生成する関数
-const generateNewUrl = (): UrlItem => {
-  const id = `url${Date.now()}`;
-  return {
-    id,
-    path: `/new-path/${id}`,
-    title: `新しいURL ${id.slice(-4)}`
-  };
-};
+// 新しいURLを生成する関数（削除）
 
 // 過去90日間のURLごとのデータを生成する関数
 const generateUrlStats = (urlId: string, index: number) => {
@@ -111,9 +119,20 @@ const prepareChartData = (allStats: Array<{url?: UrlItem, stats: any[]}>) => {
 export const AnalyticsDashboard: React.FC = () => {
   // URL一覧の状態管理
   const [urls, setUrls] = useState<UrlItem[]>(INITIAL_URLS);
+  // 選択可能なURLオプション
+  const [urlOptions, setUrlOptions] = useState<UrlOption[]>([]);
+  // プルダウンの表示状態
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
   // 選択されたURLのIDの配列（デフォルトで空）
   const [selectedUrlIds, setSelectedUrlIds] = useState<string[]>([]);
+
+  // コンポーネントマウント時にURLオプションをロード
+  useEffect(() => {
+    // ここで実際にはAPIからデータを取得する
+    // 例: fetchUrlOptions().then(data => setUrlOptions(data));
+    setUrlOptions(MOCK_URL_OPTIONS);
+  }, []);
   
   // 全URLの統計データを生成
   const allUrlStats = useMemo(() => generateAllUrlStats(urls), [urls]);
@@ -128,6 +147,9 @@ export const AnalyticsDashboard: React.FC = () => {
     [allUrlStats, selectedUrlIds, urls]
   );
   
+  // グラフに表示するURLの最大数
+  const MAX_URLS = 5;
+  
   // グラフ用のデータを準備
   const chartData = useMemo(() => {
     // 型を合わせるために必要な変換
@@ -138,15 +160,34 @@ export const AnalyticsDashboard: React.FC = () => {
         pageviews: stat.pageviews
       }))
     }));
+    
+    // 選択されたURLがなくても空のデータを返す
+    if (statsForChart.length === 0) {
+      return [];
+    }
+    
     return prepareChartData(statsForChart);
   }, [selectedStats]);
   
   // URLを追加する関数（追加時に自動的に選択状態にする）
-  const addUrl = () => {
-    const newUrl = generateNewUrl();
+  const addUrl = (urlOption: UrlOption) => {
+    if (urls.length >= MAX_URLS) return; // 最大数を超えないようにする
+    
+    const newUrl: UrlItem = {
+      id: urlOption.id,
+      title: urlOption.title,
+      path: urlOption.path
+    };
+    
     setUrls(prev => [...prev, newUrl]);
     setSelectedUrlIds(prev => [...prev, newUrl.id]);
+    setIsDropdownOpen(false);
   };
+
+  // 選択可能なURLオプションをフィルタリング（既に追加済みのURLは除外）
+  const availableUrlOptions = useMemo(() => {
+    return urlOptions.filter(option => !urls.some(url => url.id === option.id));
+  }, [urlOptions, urls]);
   
   // URLを削除する関数
   const removeUrl = (urlId: string) => {
@@ -188,22 +229,61 @@ export const AnalyticsDashboard: React.FC = () => {
       {/* URLリストセクション */}
       <div className="p-4">
         <div className="flex justify-between items-center mb-3">
-          <h2 className="text-sm font-medium text-gray-700">比較するURL</h2>
-          <div className="flex space-x-2">
-            <button
-              onClick={addUrl}
-              className="text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1 rounded-md text-xs"
-            >
-              + URLを追加
-            </button>
+          <h1 className="text-sm font-bold text-gray-700">URLを比較</h1>
+          <div className="flex relative">
+            <div className="relative mr-2">
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                disabled={urls.length >= MAX_URLS || availableUrlOptions.length === 0}
+                className={`text-sm px-3 py-1 rounded-md text-xs flex items-center ${
+                  urls.length >= MAX_URLS || availableUrlOptions.length === 0
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                    : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                }`}
+              >
+                {urls.length >= MAX_URLS 
+                  ? '最大数に達しています' 
+                  : availableUrlOptions.length === 0
+                    ? '追加できるURLがありません'
+                    : '+ URLを追加'}
+                <svg 
+                  className={`ml-1 w-4 h-4 transition-transform ${isDropdownOpen ? 'transform rotate-180' : ''}`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {isDropdownOpen && availableUrlOptions.length > 0 && (
+                <div className="absolute z-10 mt-1 w-48 bg-white rounded-md shadow-lg py-1">
+                  {availableUrlOptions.map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => addUrl(option)}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    >
+                      {option.title}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* ドロップダウン外をクリックで閉じる */}
+            {isDropdownOpen && (
+              <div 
+                className="fixed inset-0 z-0"
+                onClick={() => setIsDropdownOpen(false)}
+              />
+            )}
           </div>
         </div>
         
-        {urls.length === 0 ? (
-          <div className="text-center py-4 text-sm text-gray-500">
-            比較するURLがありません。追加してください。
-          </div>
-        ) : (
           <div className="flex flex-wrap gap-2">
             {urls.map((url) => {
               const isSelected = selectedUrlIds.includes(url.id);
@@ -242,37 +322,19 @@ export const AnalyticsDashboard: React.FC = () => {
               );
             })}
           </div>
-        )}
       </div>
       
 
 
       {/* グラフセクション */}
       {selectedUrlIds.length > 0 && (
-        <div className="space-y-4">
-          <div className="h-80">
-            <LineChart 
-              data={chartData} 
-              urlCount={selectedUrlIds.length} 
-              selectedUrls={selectedStats.map(s => s.url?.title || '')}
-              className="mt-6"
-            />
-          </div>
-          
-          {/* 凡例 */}
-          <div className="flex flex-wrap gap-4 justify-center">
-            {selectedStats.map(({ url, urlId }, index) => (
-              <div key={urlId || index} className="flex items-center">
-                <div 
-                  className="w-3 h-3 rounded-full mr-2"
-                  style={{
-                    backgroundColor: LINE_COLORS[index % LINE_COLORS.length]
-                  }}
-                />
-                <span className="text-sm text-gray-700">{url?.title || `URL ${index + 1}`}</span>
-              </div>
-            ))}
-          </div>
+        <div className="mt-8">
+          <LineChart
+            data={chartData}
+            urlCount={selectedUrlIds.length}
+            selectedUrls={selectedStats.map(s => s.url?.title || '')}
+            className="mt-6"
+          />
         </div>
       )}
     </div>
