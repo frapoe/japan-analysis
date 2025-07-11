@@ -7,10 +7,7 @@ import { GeoPath, GeoProjection } from "d3-geo";
 import geoJson from "@/app/lib/japan.json";
 import { Geometry } from 'geojson';
 
-// Dynamically import PrefectureStats with no SSR to avoid window is not defined error
-const PrefectureStats = dynamic(() => import("./analytics-dashboard/PrefectureStats"), {
-  ssr: false,
-});
+// Dynamically import BarChartStats with no SSR to avoid window is not defined error
 
 export type Prefecture = {
   name: string;
@@ -205,7 +202,6 @@ const JapanMap = ({ list }: { list: Prefecture[] }) => {
           }}
         />
       </div>
-      <PrefectureStats list={list} colorConfig={colorConfig} />
     </div>
   );
 };

@@ -1,8 +1,8 @@
 "use client";
 
 import JapanMap from "./components/japan-map";
-import { AnalyticsDashboard } from "./components/analytics-dashboard/AnalyticsDashboard";
-import { DeviceAndOsStats } from "./components/analytics-dashboard/DeviceAndOsStats";
+import { AnalyticsDashboard } from "./components/analytics/AnalyticsDashboard";
+import { BarChartStats } from "./components/analytics/BarChartStats";
 
 export default function Page() {
   const list = [
@@ -54,34 +54,30 @@ export default function Page() {
     { name: "kagoshima", name_ja: "鹿児島県", count: 10 },
     { name: "okinawa", name_ja: "沖縄県", count: 20 },
   ];
-  // 仮のOS統計データ
-  const osStats = [
-    { name: "Windows", percentage: 65.2 },
-    { name: "MacOS", percentage: 22.8 },
-    { name: "iOS", percentage: 8.5 },
-    { name: "Android", percentage: 3.2 },
-    { name: "Others", percentage: 0.3 },
-  ];
-
-  // 仮のデバイス統計データ
-  const deviceStats = [
-    { name: "PC", percentage: 62.4 },
-    { name: "Mobile", percentage: 32.1 },
-    { name: "Tablet", percentage: 5.5 },
-    { name: "Others", percentage: 0.3 },
-  ];
 
   return (
     <div className="container mx-auto p-4 space-y-6">
-      <AnalyticsDashboard />
+      <AnalyticsDashboard list={list} />
 
       <div className="mt-6">
         <JapanMap list={list} />
       </div>
 
-      <div>
-        <h2 className="text-lg font-medium mb-6"></h2>
-        <DeviceAndOsStats osStats={osStats} deviceStats={deviceStats} />
+      <div className="mt-8">
+        <BarChartStats 
+          prefectureList={list}
+          osStats={[]}
+          deviceStats={[]}
+          browserStats={[]}
+          referrerStats={[]}
+          colorConfig={{
+            hue: 210,
+            minSaturation: 50,
+            maxSaturation: 100,
+            lightness: 50,
+            zeroCountColor: "#f0f0f0"
+          }}
+        />
       </div>
     </div>
   );

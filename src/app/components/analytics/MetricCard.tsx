@@ -6,6 +6,7 @@ interface MetricCardProps {
   change?: number;
   tooltip?: string;
   className?: string;
+  icon?: React.ReactNode;
 }
 
 export const MetricCard: React.FC<MetricCardProps> = ({
@@ -14,27 +15,31 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   change,
   tooltip,
   className = '',
+  icon,
 }) => {
   return (
-    <div className={`bg-white rounded-lg border border-gray-200 p-6 ${className}`}>
+    <div className={`bg-white rounded-lg p-4 ${className}`}>
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-gray-600">
-          {title}
-        </h3>
+        <div className="flex items-center">
+          {icon && <div className="mr-2">{icon}</div>}
+          <h3 className="text-sm font-medium text-gray-600">
+            {title}
+          </h3>
+        </div>
         {tooltip && (
           <span className="text-gray-400 hover:text-gray-600 cursor-help" title={tooltip}>
             ⓘ
           </span>
         )}
       </div>
-      <div className="mt-2 flex items-baseline">
-        <p className="text-2xl font-semibold text-gray-800">
+      <div className="mt-1 flex items-baseline justify-between">
+        <p className="text-xl font-semibold text-gray-800">
           {value}
         </p>
         {change !== undefined && (
           <span
-            className={`ml-2 text-sm font-medium ${
-              change >= 0 ? 'text-green-600' : 'text-red-600'
+            className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+              change >= 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
             }`}
           >
             {change >= 0 ? '↑' : '↓'} {Math.abs(change)}%

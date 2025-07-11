@@ -1,6 +1,20 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { MetricCard } from "./MetricCard";
 import { LineChart } from "./LineChart";
+import { BarChartStats } from "./BarChartStats";
+
+// メトリクスタイプ
+type Metrics = {
+  visitors: number;
+  pageviews: number;
+  duration: number; // 秒単位
+};
+
+// メトリクス比較の型
+type MetricComparison = {
+  value: number;
+  change: number; // 前日比（%）
+};
 
 // 仮のURLデータ型
 type UrlOption = {
@@ -16,15 +30,6 @@ const MOCK_URL_OPTIONS: UrlOption[] = [
   { id: '3', title: 'URL3', path: '/url3' },
   { id: '4', title: 'URL4', path: '/url4' },
   { id: '5', title: 'URL5', path: '/url5' },
-];
-
-// グラフの色定義
-const LINE_COLORS = [
-  '#3b82f6', // blue-500
-  '#ef4444', // red-500
-  '#10b981', // emerald-500
-  '#f59e0b', // amber-500
-  '#8b5cf6', // violet-500
 ];
 
 // URLの型定義
@@ -44,8 +49,6 @@ const formatDate = (date: Date) => {
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
-
-// 新しいURLを生成する関数（削除）
 
 // 過去90日間のURLごとのデータを生成する関数
 const generateUrlStats = (urlId: string, index: number) => {
@@ -100,23 +103,33 @@ const generateAllUrlStats = (urls: UrlItem[]) => {
 };
 
 // 選択されたURLのデータをマージしてグラフ用のデータ形式に変換
-const prepareChartData = (allStats: Array<{url?: UrlItem, stats: any[]}>) => {
+const prepareChartData = (allStats: Array<{url?: UrlItem, stats: {date: string, pageviews: number}[]}>): Array<{date: string; [key: string]: string | number}> => {
   if (allStats.length === 0) return [];
   
   // 最初のURLのデータをベースに作成
   return allStats[0].stats.map((stat, index) => {
-    const result: any = { date: stat.date };
+    const result: {[key: string]: string | number} = { date: stat.date };
     
     // 各URLのデータを追加
     allStats.forEach((urlStat, urlIndex) => {
       result[`url${urlIndex + 1}Pageviews`] = urlStat.stats[index]?.pageviews || 0;
     });
     
-    return result;
+    return result as {date: string; [key: string]: string | number};
   });
 };
 
-export const AnalyticsDashboard: React.FC = () => {
+type ListItem = {
+  name: string;
+  name_ja: string;
+  count: number;
+};
+
+interface AnalyticsDashboardProps {
+  list: ListItem[];
+}
+
+export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ list }) => {
   // URL一覧の状態管理
   const [urls, setUrls] = useState<UrlItem[]>(INITIAL_URLS);
   // 選択可能なURLオプション
@@ -126,13 +139,60 @@ export const AnalyticsDashboard: React.FC = () => {
   
   // 選択されたURLのIDの配列（デフォルトで空）
   const [selectedUrlIds, setSelectedUrlIds] = useState<string[]>([]);
+  
+  // 仮のメトリクスデータ
+  const MOCK_METRICS: Metrics = useMemo(() => ({
+    visitors: 8567,
+    pageviews: 24567,
+    duration: 142,
+  }), []);
 
-  // コンポーネントマウント時にURLオプションをロード
+  // メトリクスデータの状態
+  const [metrics, setMetrics] = useState<Metrics>({ visitors: 0, pageviews: 0, duration: 0 });
+  const [previousMetrics, setPreviousMetrics] = useState<Metrics>({ visitors: 0, pageviews: 0, duration: 0 });
+
+  // 前日比を計算する関数
+  const calculateComparison = (current: number, previous: number): MetricComparison => {
+    if (previous === 0) return { value: current, change: 0 };
+    const change = ((current - previous) / previous) * 100;
+    return { value: current, change: parseFloat(change.toFixed(1)) };
+  };
+
+  // コンポーネントマウント時にURLオプションをロードし、最初のURLを選択
   useEffect(() => {
     // ここで実際にはAPIからデータを取得する
     // 例: fetchUrlOptions().then(data => setUrlOptions(data));
     setUrlOptions(MOCK_URL_OPTIONS);
-  }, []);
+    
+    // 最初のURLを選択
+    if (MOCK_URL_OPTIONS.length > 0) {
+      const firstUrl = MOCK_URL_OPTIONS[0];
+      const initialUrl = {
+        id: firstUrl.id,
+        title: firstUrl.title,
+        path: firstUrl.path
+      };
+      setUrls([initialUrl]);
+      setSelectedUrlIds([firstUrl.id]);
+    }
+    
+    // メトリクスデータをロード（実際にはAPIから取得）
+    const loadMetrics = () => {
+      // 現在の期間のデータ
+      const currentData = MOCK_METRICS;
+      // 前回期間のデータ（実際にはAPIから取得）
+      const previousData = {
+        visitors: Math.floor(MOCK_METRICS.visitors * 0.8), // 仮の前回データ
+        pageviews: Math.floor(MOCK_METRICS.pageviews * 0.8), // 仮の前回データ
+        duration: Math.floor(MOCK_METRICS.duration * 0.9) // 仮の前回データ
+      };
+      
+      setMetrics(currentData);
+      setPreviousMetrics(previousData);
+    };
+    
+    loadMetrics();
+  }, [MOCK_METRICS]);
   
   // 全URLの統計データを生成
   const allUrlStats = useMemo(() => generateAllUrlStats(urls), [urls]);
@@ -224,8 +284,31 @@ export const AnalyticsDashboard: React.FC = () => {
     });
   }, [selectedStats]);
 
+  // メトリクス比較データを計算
+  const visitorsComparison = calculateComparison(metrics.visitors, previousMetrics.visitors);
+  const pageviewsComparison = calculateComparison(metrics.pageviews, previousMetrics.pageviews);
+  const durationComparison = calculateComparison(metrics.duration, previousMetrics.duration);
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* メトリクスカード */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <MetricCard
+          title="訪問者数"
+          value={visitorsComparison.value.toLocaleString()}
+          change={visitorsComparison.change}
+        />
+        <MetricCard
+          title="表示回数"
+          value={pageviewsComparison.value.toLocaleString()}
+          change={pageviewsComparison.change}
+        />
+        <MetricCard
+          title="平均滞在時間"
+          value={`${Math.floor(durationComparison.value / 60)}分${durationComparison.value % 60}秒`}
+          change={durationComparison.change}
+        />
+      </div>
       {/* URLリストセクション */}
       <div className="p-4">
         <div className="flex justify-between items-center mb-3">
@@ -286,7 +369,6 @@ export const AnalyticsDashboard: React.FC = () => {
         
           <div className="flex flex-wrap gap-2">
             {urls.map((url) => {
-              const isSelected = selectedUrlIds.includes(url.id);
               const metric = urlMetrics.find(m => m.urlId === url.id);
               
               return (
@@ -324,8 +406,6 @@ export const AnalyticsDashboard: React.FC = () => {
           </div>
       </div>
       
-
-
       {/* グラフセクション */}
       {selectedUrlIds.length > 0 && (
         <div className="mt-8">
@@ -337,6 +417,8 @@ export const AnalyticsDashboard: React.FC = () => {
           />
         </div>
       )}
+
+
     </div>
   );
 };

@@ -8,13 +8,8 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  LegendPayload,
 } from "recharts";
-
-// 色の定数を定義
-const COLORS = {
-  primary: "#0000FF",
-  secondary: "#FF0000",
-};
 
 interface LineChartProps {
   data: Array<{
@@ -27,7 +22,13 @@ interface LineChartProps {
   className?: string;
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+interface CustomTooltipPayload {
+  name: string;
+  value: number;
+  color: string;
+}
+
+const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: CustomTooltipPayload[]; label?: string }) => {
   if (active && payload && payload.length) {
     const colors = [
       "#3b82f6", // blue-500
@@ -43,14 +44,14 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       <div className="bg-white p-3 border border-gray-200 rounded shadow-sm text-sm">
         <p className="font-medium mb-2">{label}</p>
         <div className="space-y-1">
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry: { name: string; value: number }, index: number) => (
             <div key={`tooltip-${index}`} className="flex items-center">
               <div
                 className="w-2 h-2 rounded-full mr-2"
                 style={{ backgroundColor: colors[index % colors.length] }}
               ></div>
               <span>
-                {entry.name}: {entry.value.toLocaleString()}
+                {entry.name}: {entry.value?.toLocaleString()}
               </span>
             </div>
           ))}
@@ -194,7 +195,7 @@ export const LineChart: React.FC<LineChartProps> = ({
               axisLine={{ stroke: "#e5e7eb" }}
               tickLine={{ stroke: hasData ? "#e5e7eb" : "transparent" }}
               tickFormatter={(value) => {
-                if (value >= 1000) return `${value / 1000}k`;
+                if (typeof value === 'number' && value >= 1000) return `${value / 1000}k`;
                 return value === 0 ? "" : value;
               }}
               domain={[0, hasData ? "auto" : 100]}
@@ -210,12 +211,12 @@ export const LineChart: React.FC<LineChartProps> = ({
                   justifyContent: "center",
                   alignItems: "center",
                 }}
-                formatter={(value, entry: any, index: number) => (
+                formatter={(value) => (
                   <span className="text-sm text-gray-600">{value}</span>
                 )}
                 content={({ payload }) => (
                   <div className="flex flex-wrap justify-center gap-4">
-                    {payload?.map((entry: any, index: number) => {
+                    {payload?.map((entry: LegendPayload, index: number) => {
                       // データが0の凡例は表示しない
                       const dataKey = entry.dataKey as string;
                       const hasAnyData = data.some((d) => {
