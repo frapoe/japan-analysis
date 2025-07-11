@@ -22,11 +22,11 @@ interface StatItem {
 
 interface BarChartStatsProps {
   prefectureList: Prefecture[];
-  osStats: StatItem[];
-  deviceStats: StatItem[];
-  browserStats: StatItem[];
-  referrerStats: StatItem[];
-  colorConfig: {
+  osStats?: StatItem[];
+  deviceStats?: StatItem[];
+  browserStats?: StatItem[];
+  referrerStats?: StatItem[];
+  colorConfig?: {
     hue: number;
     minSaturation: number;
     maxSaturation: number;
@@ -35,8 +35,7 @@ interface BarChartStatsProps {
   };
 }
 
-// --- 仮データ ---
-
+// ダミーデータ
 const dummyOsData: StatItem[] = [
   { name: "iOS", percentage: 45.2 },
   { name: "Android", percentage: 30.8 },
@@ -59,15 +58,55 @@ const dummyBrowserData: StatItem[] = [
 
 const dummyReferrerData: StatItem[] = [
   { name: "google.com", url: "google.com", percentage: 50.1 },
-  { name: "twitter.com", url: "twitter.com", percentage: 22.5 },
-  { name: "youtube.com", url: "youtube.com", percentage: 15.9 },
-  { name: "instagram.com", url: "instagram.com", percentage: 11.5 },
+  { name: "chatgpt.com", url: "chatgpt.com", percentage: 22.5 },
+  { name: "bing.com", url: "bing.com", percentage: 15.9 },
+  { name: "github.com", url: "github.com", percentage: 11.5 },
 ];
 
 // --- コンポーネント本体 ---
 
+const renderStatBar = (percentage: number) => (
+  <div className="stat-bar-container">
+    <div
+      className="stat-bar"
+      style={{
+        width: `${percentage}%`,
+        backgroundColor: "#0040FF",
+      }}
+    />
+  </div>
+);
+
+const renderStatsList = (title: string, items: StatItem[]) => {
+  // 合計アクセス数を計算（ダミーデータ用）
+  const totalCount = 1000; // 仮の合計値
+
+  return (
+    <div className="stats-card">
+      <h3 style={{ textTransform: "none", letterSpacing: "0.02em" }}>
+        {title}
+      </h3>
+      <div className="stats-list">
+        {items.map((item, index) => {
+          // パーセンテージから人数を計算
+          const count = Math.round((item.percentage / 100) * totalCount);
+
+          return (
+            <div key={`${title}-${index}`} className="stat-item">
+              <div className="stat-name">{item.name}</div>
+              {renderStatBar(item.percentage)}
+              <div className="stat-count">{count.toLocaleString()}人</div>
+              <div className="stat-percent">{item.percentage.toFixed(1)}%</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 export const BarChartStats: React.FC<BarChartStatsProps> = ({
-  prefectureList,
+  prefectureList = [],
   osStats = dummyOsData,
   deviceStats = dummyDeviceData,
   browserStats = dummyBrowserData,
@@ -101,111 +140,53 @@ export const BarChartStats: React.FC<BarChartStatsProps> = ({
   );
   const displayedList = showAll ? sortedList : sortedList.slice(0, 10);
 
-  const getBarColor = (count: number) => {
-    if (count === 0) return colorConfig.zeroCountColor;
-    const percentage = (count / maxCount) * 100;
-    const saturation =
-      colorConfig.minSaturation +
-      (percentage / 100) *
-        (colorConfig.maxSaturation - colorConfig.minSaturation);
-    return `hsl(${colorConfig.hue}, ${saturation}%, ${colorConfig.lightness}%)`;
-  };
-
-  // --- 共通の統計項目レンダリング関数 ---
-  const renderStatItem = (item: StatItem & { count?: number }) => {
-    const count = item.count || Math.round(Math.random() * 1000);
-    const name = item.url || item.name;
-
-    return (
-      <div key={name} className="stat-item">
-        <div className="stat-name">{name}</div>
-        <div className="stat-bar-container">
-          <div
-            className="stat-bar"
-            style={{
-              width: `${item.percentage}%`,
-              backgroundColor: "#0040FF",
-            }}
-          />
-        </div>
-        <div className="stat-count">{formatNumber(count)}</div>
-        <div className="stat-percent">{item.percentage.toFixed(1)}%</div>
-      </div>
-    );
+  const getBarColor = (percentage: number) => {
+    if (percentage === 0) return colorConfig.zeroCountColor;
+    return "#FFFFFF";
   };
 
   return (
-    <div className="stats-container space-y-6">
-      {/* --- 都道府県ランキング --- */}
-      <div className="device-os-section">
-        {/* <h3 classame="text-sm font-medium text-gray-700 mb-2">Top Prefectures</h3> */}
-        <div className="stats-list">
-          {displayedList.map((pref) => {
-            const percentage =
-              totalVisitors > 0 ? (pref.count / totalVisitors) * 100 : 0;
-            const barWidth = (pref.count / maxCount) * 100;
+    <div className="stats-section">
+      {/* 都道府県ランキング */}
+      {prefectureList.length > 0 && (
+        <div className="stats-card">
+          <div className="stats-list">
+            {displayedList.map((pref) => {
+              const percentage =
+                totalVisitors > 0 ? (pref.count / totalVisitors) * 100 : 0;
+              const barColor = getBarColor(percentage);
 
-            return (
-              <div key={pref.name} className="stat-item">
-                <div className="stat-name">
-                  {pref.name_ja || pref.name.replace(/(都|道|府|県)$/, "")}
+              return (
+                <div key={pref.name} className="stat-item">
+                  <div className="stat-name">
+                    {pref.name_ja || pref.name.replace(/(都|道|府|県)$/, "")}
+                  </div>
+                  {renderStatBar(percentage)}
+                  <div className="stat-count">{formatNumber(pref.count)}人</div>
+                  <div className="stat-percent">{percentage.toFixed(1)}%</div>
                 </div>
-                <div className="stat-bar-container">
-                  <div
-                    className="stat-bar"
-                    style={{
-                      width: `${barWidth}%`,
-                      backgroundColor: getBarColor(pref.count),
-                    }}
-                  />
-                </div>
-                <div className="stat-count">{formatNumber(pref.count)}人</div>
-                <div className="stat-percent">
-                  {totalVisitors > 0 ? percentage.toFixed(1) : "0.0"}%
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        {sortedList.length > 10 && (
-          <div className="mt-4 text-center">
-            <button
-              onClick={() => setShowAll(!showAll)}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-            >
-              {showAll ? "閉じる" : `さらに${sortedList.length - 10}件を表示`}
-            </button>
+              );
+            })}
           </div>
-        )}
-      </div>
-
-      {/* --- OS, Devices, Browsers, Referrers --- */}
-      <div className="device-os-section">
-        <h3 className="text-sm font-medium text-gray-700 mb-2">OS</h3>
-        <div className="stats-list">
-          {osStats.map((os) => renderStatItem(os))}
+          {sortedList.length > 10 && (
+            <div className="mt-3 text-center">
+              <button
+                onClick={() => setShowAll(!showAll)}
+                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              >
+                {showAll ? "閉じる" : `さらに${sortedList.length - 10}件を表示`}
+              </button>
+            </div>
+          )}
         </div>
-      </div>
+      )}
 
-      <div className="device-os-section">
-        <h3 className="text-sm font-medium text-gray-700 mb-2">Devices</h3>
-        <div className="stats-list">
-          {deviceStats.map((device) => renderStatItem(device))}
-        </div>
-      </div>
-
-      <div className="device-os-section">
-        <h3 className="text-sm font-medium text-gray-700 mb-2">Browsers</h3>
-        <div className="stats-list">
-          {browserStats.map((browser) => renderStatItem(browser))}
-        </div>
-      </div>
-
-      <div className="device-os-section">
-        <h3 className="text-sm font-medium text-gray-700 mb-2">Referrers</h3>
-        <div className="stats-list">
-          {referrerStats.map((referrer) => renderStatItem(referrer))}
-        </div>
+      {/* OS、デバイス、ブラウザ、リファラの統計 */}
+      <div className="stats-grid">
+        {renderStatsList("OS", osStats)}
+        {renderStatsList("Devices", deviceStats)}
+        {renderStatsList("Browsers", browserStats)}
+        {renderStatsList("Referrers", referrerStats)}
       </div>
     </div>
   );

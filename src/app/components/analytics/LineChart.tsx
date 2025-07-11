@@ -28,7 +28,15 @@ interface CustomTooltipPayload {
   color: string;
 }
 
-const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: CustomTooltipPayload[]; label?: string }) => {
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: CustomTooltipPayload[];
+  label?: string;
+}) => {
   if (active && payload && payload.length) {
     const colors = [
       "#3b82f6", // blue-500
@@ -44,17 +52,19 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
       <div className="bg-white p-3 border border-gray-200 rounded shadow-sm text-sm">
         <p className="font-medium mb-2">{label}</p>
         <div className="space-y-1">
-          {payload.map((entry: { name: string; value: number }, index: number) => (
-            <div key={`tooltip-${index}`} className="flex items-center">
-              <div
-                className="w-2 h-2 rounded-full mr-2"
-                style={{ backgroundColor: colors[index % colors.length] }}
-              ></div>
-              <span>
-                {entry.name}: {entry.value?.toLocaleString()}
-              </span>
-            </div>
-          ))}
+          {payload.map(
+            (entry: { name: string; value: number }, index: number) => (
+              <div key={`tooltip-${index}`} className="flex items-center">
+                <div
+                  className="w-2 h-2 rounded-full mr-2"
+                  style={{ backgroundColor: colors[index % colors.length] }}
+                ></div>
+                <span>
+                  {entry.name}: {entry.value?.toLocaleString()}
+                </span>
+              </div>
+            )
+          )}
         </div>
       </div>
     );
@@ -128,7 +138,7 @@ export const LineChart: React.FC<LineChartProps> = ({
     );
 
   return (
-    <div className={`bg-white rounded-lg p-6 ${className}`}>
+    <div className={`rounded-lg ${className}`}>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-medium">アクセス数</h2>
         <div className="flex space-x-2">
@@ -195,7 +205,8 @@ export const LineChart: React.FC<LineChartProps> = ({
               axisLine={{ stroke: "#e5e7eb" }}
               tickLine={{ stroke: hasData ? "#e5e7eb" : "transparent" }}
               tickFormatter={(value) => {
-                if (typeof value === 'number' && value >= 1000) return `${value / 1000}k`;
+                if (typeof value === "number" && value >= 1000)
+                  return `${value / 1000}k`;
                 return value === 0 ? "" : value;
               }}
               domain={[0, hasData ? "auto" : 100]}
@@ -232,13 +243,13 @@ export const LineChart: React.FC<LineChartProps> = ({
                           className="flex items-center"
                         >
                           <div className="relative w-3 h-3 mr-1">
-                            <div 
-                              className="absolute inset-0 rounded-full" 
-                              style={{ 
-                                backgroundColor: '#fff',
+                            <div
+                              className="absolute inset-0 rounded-full"
+                              style={{
+                                backgroundColor: "#fff",
                                 border: `2px solid ${entry.color}`,
-                                width: '12px',
-                                height: '12px'
+                                width: "12px",
+                                height: "12px",
                               }}
                             />
                           </div>
@@ -265,13 +276,13 @@ export const LineChart: React.FC<LineChartProps> = ({
                   strokeWidth={hasData ? 2 : 0} // データがない場合は線を非表示
                   strokeOpacity={hasData ? 1 : 0} // データがない場合は透明に
                   dot={{
-                    fill: '#fff',
+                    fill: "#fff",
                     stroke: color,
                     strokeWidth: 2,
                     r: 4,
                   }}
                   activeDot={{
-                    fill: '#fff',
+                    fill: "#fff",
                     stroke: color,
                     strokeWidth: 2,
                     r: 4,

@@ -59,17 +59,13 @@ export default function Page() {
     <div className="container mx-auto p-4 space-y-6">
       <AnalyticsDashboard list={list} />
 
-      <div className="mt-6">
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <JapanMap list={list} />
       </div>
 
       <div className="mt-8">
         <BarChartStats 
           prefectureList={list}
-          osStats={[]}
-          deviceStats={[]}
-          browserStats={[]}
-          referrerStats={[]}
           colorConfig={{
             hue: 210,
             minSaturation: 50,
