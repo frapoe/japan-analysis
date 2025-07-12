@@ -11,6 +11,7 @@
   "dependencies": {
     "d3": "^7.9.0",
     "date-fns": "^4.1.0",
+    "hono": "^4.8.4",
     "next": "15.3.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -21,8 +22,9 @@
     "@tailwindcss/postcss": "^4",
     "@types/d3": "^7.4.3",
     "@types/d3-geo": "^3.1.0",
+    "@types/estree": "^1.0.8",
     "@types/geojson": "^7946.0.16",
-    "@types/node": "^20",
+    "@types/node": "^20.19.7",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/topojson-client": "^3.1.5",

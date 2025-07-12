@@ -1,8 +1,8 @@
 "use client";
 
 import JapanMap from "./components/japan-map";
-import { AnalyticsDashboard } from "./components/analytics/AnalyticsDashboard";
-import { BarChartStats } from "./components/analytics/BarChartStats";
+import { AnalyticsDashboard } from "./components/stats/AnalyticsDashboard";
+import { BarChartStats } from "./components/stats/BarChartStats";
 
 export default function Page() {
   const list = [
