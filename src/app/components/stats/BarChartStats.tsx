@@ -13,8 +13,7 @@ export type Prefecture = {
 // OS、デバイス、ブラウザ、リファラの共通データ型
 interface StatItem {
   name: string;
-  percentage: number;
-  count?: number;
+  count: number;
   url?: string;
 }
 
@@ -22,10 +21,10 @@ interface StatItem {
 
 interface BarChartStatsProps {
   prefectureList: Prefecture[];
-  osStats?: StatItem[];
-  deviceStats?: StatItem[];
-  browserStats?: StatItem[];
-  referrerStats?: StatItem[];
+  osStats: StatItem[];
+  deviceStats: StatItem[];
+  browserStats: StatItem[];
+  referrerStats: StatItem[];
   colorConfig?: {
     hue: number;
     minSaturation: number;
@@ -34,34 +33,6 @@ interface BarChartStatsProps {
     zeroCountColor: string;
   };
 }
-
-// ダミーデータ
-const dummyOsData: StatItem[] = [
-  { name: "iOS", percentage: 45.2 },
-  { name: "Android", percentage: 30.8 },
-  { name: "Windows", percentage: 15.1 },
-  { name: "macOS", percentage: 8.9 },
-];
-
-const dummyDeviceData: StatItem[] = [
-  { name: "Mobile", percentage: 75.9 },
-  { name: "Desktop", percentage: 20.1 },
-  { name: "Tablet", percentage: 4.0 },
-];
-
-const dummyBrowserData: StatItem[] = [
-  { name: "Chrome", percentage: 60.5 },
-  { name: "Safari", percentage: 25.2 },
-  { name: "Edge", percentage: 8.3 },
-  { name: "Firefox", percentage: 6.0 },
-];
-
-const dummyReferrerData: StatItem[] = [
-  { name: "google.com", url: "google.com", percentage: 50.1 },
-  { name: "chatgpt.com", url: "chatgpt.com", percentage: 22.5 },
-  { name: "bing.com", url: "bing.com", percentage: 15.9 },
-  { name: "github.com", url: "github.com", percentage: 11.5 },
-];
 
 // --- コンポーネント本体 ---
 
@@ -78,8 +49,10 @@ const renderStatBar = (percentage: number) => (
 );
 
 const renderStatsList = (title: string, items: StatItem[]) => {
-  // 合計アクセス数を計算（ダミーデータ用）
-  const totalCount = 1000; // 仮の合計値
+  if (!items || items.length === 0) {
+    return null;
+  }
+  const totalCount = items.reduce((sum, item) => sum + item.count, 0);
 
   return (
     <div className="stats-card">
@@ -88,15 +61,14 @@ const renderStatsList = (title: string, items: StatItem[]) => {
       </h3>
       <div className="stats-list">
         {items.map((item, index) => {
-          // パーセンテージから人数を計算
-          const count = Math.round((item.percentage / 100) * totalCount);
+          const percentage = totalCount > 0 ? (item.count / totalCount) * 100 : 0;
 
           return (
             <div key={`${title}-${index}`} className="stat-item">
               <div className="stat-name">{item.name}</div>
-              {renderStatBar(item.percentage)}
-              <div className="stat-count">{count.toLocaleString()}人</div>
-              <div className="stat-percent">{item.percentage.toFixed(1)}%</div>
+              {renderStatBar(percentage)}
+              <div className="stat-count">{item.count.toLocaleString()}人</div>
+              <div className="stat-percent">{percentage.toFixed(1)}%</div>
             </div>
           );
         })}
@@ -107,10 +79,10 @@ const renderStatsList = (title: string, items: StatItem[]) => {
 
 export const BarChartStats: React.FC<BarChartStatsProps> = ({
   prefectureList = [],
-  osStats = dummyOsData,
-  deviceStats = dummyDeviceData,
-  browserStats = dummyBrowserData,
-  referrerStats = dummyReferrerData,
+  osStats,
+  deviceStats,
+  browserStats,
+  referrerStats,
   colorConfig = {
     hue: 210,
     minSaturation: 50,

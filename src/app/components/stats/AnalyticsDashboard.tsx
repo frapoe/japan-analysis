@@ -16,22 +16,6 @@ type MetricComparison = {
   change: number; // 前日比（%）
 };
 
-// 仮のURLデータ型
-type UrlOption = {
-  id: string;
-  title: string;
-  path: string;
-};
-
-// 仮のURLデータ
-const MOCK_URL_OPTIONS: UrlOption[] = [
-  { id: "1", title: "URL1", path: "/url1" },
-  { id: "2", title: "URL2", path: "/url2" },
-  { id: "3", title: "URL3", path: "/url3" },
-  { id: "4", title: "URL4", path: "/url4" },
-  { id: "5", title: "URL5", path: "/url5" },
-];
-
 // URLの型定義
 interface UrlItem {
   id: string;
@@ -149,14 +133,14 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
   const [selectedUrlIds, setSelectedUrlIds] = useState<string[]>([]);
 
   // 仮のメトリクスデータ
-  const MOCK_METRICS: Metrics = useMemo(
-    () => ({
-      visitors: 8567,
-      pageviews: 24567,
-      duration: 142,
-    }),
-    []
-  );
+  // const MOCK_METRICS: Metrics = useMemo(
+  //   () => ({
+  //     visitors: 8567,
+  //     pageviews: 24567,
+  //     duration: 142,
+  //   }),
+  //   []
+  // );
 
   // メトリクスデータの状態
   const [metrics, setMetrics] = useState<Metrics>({
@@ -201,12 +185,12 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
     // メトリクスデータをロード（実際にはAPIから取得）
     const loadMetrics = () => {
       // 現在の期間のデータ
-      const currentData = MOCK_METRICS;
+      const currentData = mockMetrics;
       // 前回期間のデータ（実際にはAPIから取得）
       const previousData = {
-        visitors: Math.floor(MOCK_METRICS.visitors * 0.8), // 仮の前回データ
-        pageviews: Math.floor(MOCK_METRICS.pageviews * 0.8), // 仮の前回データ
-        duration: Math.floor(MOCK_METRICS.duration * 0.9), // 仮の前回データ
+        visitors: Math.floor(mockMetrics.visitors * 0.8), // 仮の前回データ
+        pageviews: Math.floor(mockMetrics.pageviews * 0.8), // 仮の前回データ
+        duration: Math.floor(mockMetrics.duration * 0.9), // 仮の前回データ
       };
 
       setMetrics(currentData);
@@ -214,7 +198,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({
     };
 
     loadMetrics();
-  }, [MOCK_METRICS]);
+  }, [mockMetrics]);
 
   // 全URLの統計データを生成
   const allUrlStats = useMemo(() => generateAllUrlStats(urls), [urls]);
