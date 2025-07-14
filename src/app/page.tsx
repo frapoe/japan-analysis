@@ -53,7 +53,7 @@ export default function Page() {
     fetchAllData();
   }, []);
 
-  const list = prefectureData.map(p => ({ ...p, name_ja: p.name }));
+  const prefectureList = prefectureData.map(p => ({ ...p, name_ja: p.name }));
 
   if (loading) {
     return <div>Loading...</div>;
@@ -61,15 +61,15 @@ export default function Page() {
 
   return (
     <div className="container mx-auto p-4 space-y-6">
-      <AnalyticsDashboard list={list} />
+      <AnalyticsDashboard list={prefectureList} />
 
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <JapanMap list={list} />
+        <JapanMap list={prefectureList} />
       </div>
 
       <div className="mt-8">
         <BarChartStats 
-          prefectureList={list}
+          prefectureList={prefectureList}
           osStats={osData}
           deviceStats={deviceData}
           browserStats={browserData}

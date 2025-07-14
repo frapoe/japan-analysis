@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -12,20 +12,18 @@ import {
 } from "recharts";
 
 interface LineChartProps {
-  data: Array<{
-    [key: string]: string | number;
-    date: string;
-  }>;
-  urlCount: number;
-  selectedUrls: string[];
-  hideLegend?: boolean;
   className?: string;
 }
 
-interface CustomTooltipPayload {
+interface UrlData {
   name: string;
-  value: number;
-  color: string;
+  url: string;
+  count: number;
+}
+
+interface ChartData {
+  date: string;
+  [key: string]: string | number;
 }
 
 const CustomTooltip = ({
@@ -34,37 +32,35 @@ const CustomTooltip = ({
   label,
 }: {
   active?: boolean;
-  payload?: CustomTooltipPayload[];
+  payload?: any[];
   label?: string;
 }) => {
   if (active && payload && payload.length) {
     const colors = [
-      "#3b82f6", // blue-500
-      "#ef4444", // red-500
-      "#10b981", // green-500
-      "#f59e0b", // yellow-500
-      "#8b5cf6", // purple-500
-      "#ec4899", // pink-500
-      "#14b8a6", // teal-500
+      "#3b82f6",
+      "#ef4444",
+      "#10b981",
+      "#f59e0b",
+      "#8b5cf6",
+      "#ec4899",
+      "#14b8a6",
     ];
 
     return (
       <div className="bg-white p-3 border border-gray-200 rounded shadow-sm text-sm">
         <p className="font-medium mb-2">{label}</p>
         <div className="space-y-1">
-          {payload.map(
-            (entry: { name: string; value: number }, index: number) => (
-              <div key={`tooltip-${index}`} className="flex items-center">
-                <div
-                  className="w-2 h-2 rounded-full mr-2"
-                  style={{ backgroundColor: colors[index % colors.length] }}
-                ></div>
-                <span>
-                  {entry.name}: {entry.value?.toLocaleString()}
-                </span>
-              </div>
-            )
-          )}
+          {payload.map((entry: any, index: number) => (
+            <div key={`tooltip-${index}`} className="flex items-center">
+              <div
+                className="w-2 h-2 rounded-full mr-2"
+                style={{ backgroundColor: colors[index % colors.length] }}
+              ></div>
+              <span>
+                {entry.name}: {entry.value?.toLocaleString()}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -72,70 +68,83 @@ const CustomTooltip = ({
   return null;
 };
 
-// 期間の型定義
 type TimeRange = "7d" | "30d" | "90d";
 
-// 色の配列を定義
 const LINE_COLORS = [
-  "#3b82f6", // blue-500
-  "#ef4444", // red-500
-  "#10b981", // green-500
-  "#f59e0b", // yellow-500
-  "#8b5cf6", // purple-500
-  "#ec4899", // pink-500
-  "#14b8a6", // teal-500
+  "#3b82f6",
+  "#ef4444",
+  "#10b981",
+  "#f59e0b",
+  "#8b5cf6",
+  "#ec4899",
+  "#14b8a6",
 ];
 
-// ダミーデータを生成する関数
-const generateDummyData = (days: number) => {
-  const today = new Date();
-  const result = [];
+export const LineChart: React.FC<LineChartProps> = ({ className = "" }) => {
+  const [timeRange, setTimeRange] = useState<TimeRange>("30d");
+  const [data, setData] = useState<ChartData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [urlData, setUrlData] = useState<UrlData[]>([]);
 
-  for (let i = days - 1; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(date.getDate() - i);
-    const dummyData: { [key: string]: string | number } = {
-      date: date.toISOString().split("T")[0],
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch("/api/url");
+        if (!res.ok) {
+          throw new Error("Failed to fetch data");
+        }
+        const fetchedUrlData: UrlData[] = await res.json();
+        setUrlData(fetchedUrlData);
+
+        const days = timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90;
+        const chartData = Array.from({ length: days }).map((_, i) => {
+          const date = new Date();
+          date.setDate(date.getDate() - (days - 1 - i));
+          const formattedDate = date.toISOString().split("T")[0];
+          const dataPoint: ChartData = { date: formattedDate };
+          fetchedUrlData.forEach((url, index) => {
+            dataPoint[`url${index + 1}Pageviews`] = Math.floor(
+              Math.random() * url.count
+            );
+          });
+          return dataPoint;
+        });
+        setData(chartData);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchData();
+  }, [timeRange]);
 
-    // ダミーデータはすべて0
-    for (let idx = 0; idx < 5; idx++) {
-      dummyData[`url${idx + 1}Pageviews`] = 0;
-    }
+  const filteredData = useMemo(() => {
+    return data;
+  }, [data]);
 
-    result.push(dummyData);
+  const hasData = useMemo(() => {
+    return (
+      data.length > 0 &&
+      data.some((d) =>
+        Object.entries(d).some(([key, value]) => {
+          if (key === "date") return false;
+          return typeof value === "number" && value > 0;
+        })
+      )
+    );
+  }, [data]);
+
+  if (loading) {
+    return <div>Loading...</div>;
   }
 
-  return result;
-};
-
-export const LineChart: React.FC<LineChartProps> = ({
-  data,
-  urlCount = 2,
-  selectedUrls = [],
-  hideLegend = false,
-  className = "",
-}) => {
-  const [timeRange, setTimeRange] = useState<TimeRange>("30d");
-
-  // 期間に応じたデータをフィルタリング
-  const filteredData = useMemo(() => {
-    const daysToShow = timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90;
-    // データがある場合はそのデータを、ない場合はダミーデータを使用
-    return data.length > 0
-      ? data.slice(-daysToShow)
-      : generateDummyData(daysToShow);
-  }, [data, timeRange]);
-
-  // データがあるかどうか
-  const hasData =
-    data.length > 0 &&
-    data.some((d) =>
-      Object.entries(d).some(([key, value]) => {
-        if (key === "date") return false;
-        return typeof value === "number" && value > 0;
-      })
-    );
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
 
   return (
     <div className={`rounded-lg ${className}`}>
@@ -212,7 +221,7 @@ export const LineChart: React.FC<LineChartProps> = ({
               domain={[0, hasData ? "auto" : 100]}
             />
             <Tooltip content={<CustomTooltip />} />
-            {!hideLegend && hasData && (
+            {hasData && (
               <Legend
                 verticalAlign="bottom"
                 height={36}
@@ -228,7 +237,6 @@ export const LineChart: React.FC<LineChartProps> = ({
                 content={({ payload }) => (
                   <div className="flex flex-wrap justify-center gap-4">
                     {payload?.map((entry: LegendPayload, index: number) => {
-                      // データが0の凡例は表示しない
                       const dataKey = entry.dataKey as string;
                       const hasAnyData = data.some((d) => {
                         const value = d[dataKey];
@@ -261,20 +269,19 @@ export const LineChart: React.FC<LineChartProps> = ({
                 )}
               />
             )}
-            {Array.from({ length: urlCount }).map((_, index) => {
+            {urlData.map((url, index) => {
               const dataKey = `url${index + 1}Pageviews`;
               const color = LINE_COLORS[index % LINE_COLORS.length];
-              const hasData = data.length > 0 && selectedUrls[index];
 
               return (
                 <Line
                   key={`line-${index}`}
                   type="monotone"
                   dataKey={dataKey}
-                  name={selectedUrls[index] || `URL ${index + 1}`}
+                  name={url.name}
                   stroke={color}
-                  strokeWidth={hasData ? 2 : 0} // データがない場合は線を非表示
-                  strokeOpacity={hasData ? 1 : 0} // データがない場合は透明に
+                  strokeWidth={2}
+                  strokeOpacity={1}
                   dot={{
                     fill: "#fff",
                     stroke: color,
