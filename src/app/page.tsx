@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import JapanMap from "./components/japan-map";
 import { AnalyticsDashboard } from "./components/stats/AnalyticsDashboard";
 import { BarChartStats } from "./components/stats/BarChartStats";
@@ -10,6 +10,14 @@ interface StatItem {
   name: string;
   count: number;
   url?: string;
+}
+
+interface AllData {
+  prefecture: StatItem[];
+  os: StatItem[];
+  device: StatItem[];
+  browser: StatItem[];
+  referrer: StatItem[];
 }
 
 async function fetchData(endpoint: string): Promise<StatItem[]> {
@@ -31,18 +39,17 @@ export default function Page() {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        const [p, o, d, b, r] = await Promise.all([
-          fetchData('prefecture'),
-          fetchData('os'),
-          fetchData('device'),
-          fetchData('browser'),
-          fetchData('referrer'),
-        ]);
-        setPrefectureData(p);
-        setOsData(o);
-        setDeviceData(d);
-        setBrowserData(b);
-        setReferrerData(r);
+        const response = await fetch("/api/all");
+        if (!response.ok) {
+          throw new Error("Failed to fetch data");
+        }
+        const data: AllData = await response.json();
+
+        setPrefectureData(data.prefecture);
+        setOsData(data.os);
+        setDeviceData(data.device);
+        setBrowserData(data.browser);
+        setReferrerData(data.referrer);
       } catch (error) {
         console.error("Data fetching error:", error);
       } finally {
@@ -53,7 +60,7 @@ export default function Page() {
     fetchAllData();
   }, []);
 
-  const prefectureList = prefectureData.map(p => ({ ...p, name_ja: p.name }));
+  const prefectureList = prefectureData.map((p) => ({ ...p, name_ja: p.name }));
 
   if (loading) {
     return <div>Loading...</div>;
@@ -68,7 +75,7 @@ export default function Page() {
       </div>
 
       <div className="mt-8">
-        <BarChartStats 
+        <BarChartStats
           prefectureList={prefectureList}
           osStats={osData}
           deviceStats={deviceData}
@@ -79,7 +86,7 @@ export default function Page() {
             minSaturation: 50,
             maxSaturation: 100,
             lightness: 50,
-            zeroCountColor: "#f0f0f0"
+            zeroCountColor: "#f0f0f0",
           }}
         />
       </div>
